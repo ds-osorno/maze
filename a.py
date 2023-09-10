@@ -1,5 +1,6 @@
 import sys
 from node import Node
+
 from stackfrontier import StackFrontier
 from queuefrontier import QueueFrontier
 from listFrontier import ListFrontier
