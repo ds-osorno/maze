@@ -2,6 +2,7 @@ import sys
 from node import Node
 from stackfrontier import StackFrontier
 from queuefrontier import QueueFrontier
+from a import a_star_search
 
 
 class Maze():
@@ -47,7 +48,6 @@ class Maze():
 
     def print(self):
         solution = self.solution[1] if self.solution is not None else None
-        print()
         for i, row in enumerate(self.walls):
             for j, col in enumerate(row):
                 if col:
@@ -60,7 +60,7 @@ class Maze():
                     print("*", end="")
                 else:
                     print(" ", end="")
-            print()
+            print("")
         print()
 
     def neighbors(self, state):
@@ -178,7 +178,8 @@ class Maze():
 
 
 if __name__ == '__main__':
-    maze1 = Maze("maze3.txt")
+    m = Maze("maze2.txt")
+    maze1 = m
     print("Maze BFS:")
     maze1.print()
     queue_frontier = QueueFrontier()
@@ -189,7 +190,7 @@ if __name__ == '__main__':
     maze1.print()
     maze1.output_image("maze_queue.png", show_explored=True)
 
-    maze2 = Maze("maze3.txt")
+    maze2 = m
     print("Maze2:")
     maze2.print()
     stack_frontier = StackFrontier()
