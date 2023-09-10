@@ -2,10 +2,10 @@ import sys
 from node import Node
 from stackfrontier import StackFrontier
 from queuefrontier import QueueFrontier
+from listFrontier import ListFrontier
 
 
-class Maze():
-
+class Maze:
     def __init__(self, filename):
 
         # Read file and set height and width of maze
@@ -44,66 +44,67 @@ class Maze():
             self.walls.append(row)
 
         self.solution = None
+        self.explored = set()
+
+    def neighbours(self, state):
+        row, col = state
+        candidates = [
+            ("up", (row-1, col)),
+            ("down", (row+1, col)),
+            ("left", (row, col-1)),
+            ("right", (row, col+1))
+        ]
+        actions = []
+        for action, (r, c) in candidates:
+            try:
+                if not self.walls[r][c]:
+                    actions.append((action, (r, c)))
+            except:
+                continue
+        return actions
 
     def print(self):
         solution = self.solution[1] if self.solution is not None else None
         for i, row in enumerate(self.walls):
             for j, col in enumerate(row):
                 if col:
-                    print("â–ˆ", end="")
+                    print("█", end="")
                 elif (i, j) == self.start:
-                    print("A", end="")
+                    print('S', end="")
                 elif (i, j) == self.goal:
-                    print("B", end="")
+                    print("E", end="")
                 elif solution is not None and (i, j) in solution:
                     print("*", end="")
                 else:
-                    print(" ", end="")
+                    print(' ', end="")
             print("")
         print()
 
-    def neighbors(self, state):
-        row, col = state
-        candidates = [
-            ("up", (row - 1, col)),
-            ("down", (row + 1, col)),
-            ("left", (row, col - 1)),
-            ("right", (row, col + 1))
-        ]
+    def solve(self):
+        def h(state):
+            x, y = self.goal
+            a, b = state
+            d = abs(x-a)+abs(y-b)
+            return d
 
-        result = []
-        for action, (r, c) in candidates:
-            if 0 <= r < self.height and 0 <= c < self.width and not self.walls[r][c]:
-                result.append((action, (r, c)))
-        return result
+        def get_nearest_node():
+            nodes = self.frontier.all()
+            distances = {node: h(node.state)+node.distance for node in nodes}
+            best_node = min(distances, key=lambda x: distances.get(x))
+            self.frontier.remove(best_node)
+            return best_node
 
-    def solve(self, frontier):
-        """Finds a solution to maze, if one exists."""
+        self.frontier = ListFrontier()
 
-        # Keep track of number of states explored
+        node = Node(state=self.start, parent=None, action=None)
         self.num_explored = 0
-        self.frontier = frontier
+        self.set_explored = set()
+        self.frontier.add(node)
 
-        # Initialize frontier to just the starting position
-        start = Node(state=self.start, parent=None, action=None)
-
-        frontier.add(start)
-
-        # Initialize an empty explored set
-        self.explored = set()
-
-        # Keep looping until solution found
         while True:
 
-            # If nothing left in frontier, then no path
-            if frontier.empty():
-                raise Exception("no solution")
-
-            # Choose a node from the frontier
-            node = frontier.remove()
+            node = get_nearest_node()
             self.num_explored += 1
-
-            # If node is the goal, then we have a solution
             if node.state == self.goal:
                 actions = []
                 cells = []
@@ -115,15 +116,11 @@ class Maze():
                 cells.reverse()
                 self.solution = (actions, cells)
                 return
-
-            # Mark node as explored
-            self.explored.add(node.state)
-
-            # Add neighbors to frontier
-            for action, state in self.neighbors(node.state):
-                if not frontier.contains_state(state) and state not in self.explored:
-                    child = Node(state=state, parent=node, action=action)
-                    frontier.add(child)
+            self.set_explored.add(node.state)
+            for action, state in self.neighbours(node.state):
+                if state not in self.set_explored and not self.frontier.contains_state(state):
+                    child = Node(state, node, action)
+                    self.frontier.add(child)
 
     def output_image(self, filename, show_solution=True, show_explored=False):
         from PIL import Image, ImageDraw
@@ -176,26 +173,18 @@ class Maze():
         img.save(filename)
 
 
-if __name__ == '__main__':
-    m = Maze("long.txt")
-    maze1 = m
-    print("Maze BFS:")
-    maze1.print()
-    queue_frontier = QueueFrontier()
-    print("Solving Maze BFS...")
-    maze1.solve(queue_frontier)
-    print("States Explored:", maze1.num_explored)
-    print("Solution BFS:")
-    maze1.print()
-    maze1.output_image("maze_queue.png", show_explored=True)
+def main():
 
-    maze2 = m
-    print("Maze2:")
-    maze2.print()
-    stack_frontier = StackFrontier()
-    print("Solving Maze DFS...")
-    maze2.solve(stack_frontier)
-    print("States Explored:", maze2.num_explored)
-    print("Solution Maze DFS:")
-    maze2.print()
-    maze2.output_image("maze_stack.png", show_explored=True)
+    m3 = Maze("long.txt")
+    print("Maze A Start:")
+    m3.print()
+    print("Solving A Start...")
+    m3.solve()
+    print("States Explored:", m3.num_explored)
+    print("Solution A Start:")
+    m3.print()
+    m3.output_image("maze_AStart.png", show_explored=True)
+
+
+if __name__ == '__main__':
+    main()
