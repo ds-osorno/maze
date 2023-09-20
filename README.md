@@ -15,7 +15,8 @@ You can also use the output_image() method to generate an image of the maze, wit
 ## Example
 The following code shows how to use the maze solver to solve a simple maze: 
 
-'''
+```
+
 from maze import Maze
 
 maze = Maze("maze.txt")
@@ -29,7 +30,7 @@ for action in actions:
 
 # Output an image of the maze with the solution path highlighted
 maze.output_image("maze_solution.png")
-'''
+```
 ### DFS, BFS, and A*
 
 The maze solver supports three different algorithms for solving mazes: depth-first search (DFS), breadth-first search (BFS), and A*.
@@ -42,7 +43,10 @@ The maze solver supports three different algorithms for solving mazes: depth-fir
 
 Results
 Here are the results of running the maze solver on a simple maze using the DFS, BFS, and A* algorithms:
-
+Start block red and End block green
+### DFS Worst performance
 ![DFS solution](maze_stack.png)
+### BFS
 ![BFS solution](maze_queue.png)
+### A*  Best performance
 ![A* solution](maze_AStart.png)
